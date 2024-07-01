@@ -1,52 +1,28 @@
+import io.izzel.taboolib.gradle.*
+import org.jetbrains.kotlin.de.undercouch.gradle.tasks.download.org.apache.http.client.methods.RequestBuilder.options
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    `java-library`
-    `maven-publish`
-    id("io.izzel.taboolib") version "1.56"
-    id("org.jetbrains.kotlin.jvm") version "1.7.20"
+    java
+    id("io.izzel.taboolib") version "2.0.12"
+    id("org.jetbrains.kotlin.jvm") version "1.9.22"
 }
-
-val api: String? by project
-
-task("versionCheck") {
-    if (api != null) {
-        val origin = project.version.toString()
-        project.version = "$origin-api"
-    }
-}
-
 
 taboolib {
-    if (project.version.toString().contains("-api")) {
-        options("skip-kotlin-relocate")
+    env {
+        // 安装模块
+        install(
+            UNIVERSAL,
+            BUKKIT_ALL,
+
+            UI,
+            NMS,
+            NMS_UTIL,
+            KETHER,
+            LANG
+        )
     }
-    description {
-        contributors {
-            name("Zima_Blue")
-        }
-        dependencies {
-            name("MythicMobs").optional(true)
-            name("AttributeSystem").optional(true)
-            name("SX-Attribute").optional(true)
-            name("AttributePlus").optional(true)
-            name("OriginAttribute").optional(true)
-            name("DragonCore").optional(true)
-            name("GermPlugin").optional(true)
-            name("Pouvoir")
-        }
-    }
-    install("common")
-    install("common-5")
-    install("module-chat")
-    install("module-configuration")
-    install("module-kether")
-    install("module-lang")
-    install("module-metrics")
-    install("module-nms")
-    install("module-nms-util")
-    install("platform-bukkit")
-    install("expansion-command-helper")
-    classifier = null
-    version = "6.0.12-51"
+    version { taboolib = "6.1.1" }
 }
 
 repositories {
@@ -55,10 +31,10 @@ repositories {
 }
 
 dependencies {
-    taboo("ink.ptms:um:1.0.0-beta-18")
+    taboo("ink.ptms:um:1.0.2")
     compileOnly("ink.ptms:nms-all:1.0.0")
-    compileOnly("ink.ptms.core:v11902:11902-minimize:mapped")
-    compileOnly("ink.ptms.core:v11902:11902-minimize:universal")
+    compileOnly("ink.ptms.core:v12004:12004:mapped")
+    compileOnly("ink.ptms.core:v12004:12004:universal")
     compileOnly(kotlin("stdlib"))
     compileOnly("com.comphenix.protocol:ProtocolLib:4.8.0")
     compileOnly(fileTree("libs"))
@@ -68,7 +44,7 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+tasks.withType<KotlinCompile> {
     kotlinOptions {
         jvmTarget = "1.8"
         freeCompilerArgs = listOf("-Xjvm-default=all")
@@ -80,23 +56,10 @@ configure<JavaPluginConvention> {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-publishing {
-    repositories {
-        maven {
-            url = uri("https://repo.tabooproject.org/repository/releases")
-            credentials {
-                username = project.findProperty("taboolibUsername").toString()
-                password = project.findProperty("taboolibPassword").toString()
-            }
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
-        }
-    }
-    publications {
-        create<MavenPublication>("library") {
-            from(components["java"])
-            groupId = project.group.toString()
+kotlin {
+    sourceSets.all {
+        languageSettings {
+            languageVersion = "2.0"
         }
     }
 }
